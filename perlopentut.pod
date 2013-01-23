@@ -1,0 +1,124 @@
+=head1 NAME
+
+perlopentut - tutorial on opening things in Perl
+
+=head1 SYNOPSIS
+
+ open my $binary_input, '<:raw', 'shiny.data' or die "Couldn't open shiny.data: $!";
+
+ use autodie;
+ open my $text_output, '>:utf8', 'hamlet.txt';
+
+=head1 DESCRIPTION
+
+XXX
+
+=head1 TL;DR
+
+Typically, open is used with three arguments, that we'll call I<who>, I<how> and I<what>, and a return value that we'll call I<whether>.
+
+=over 4
+
+=item * I<who> is the variable that will hold the filehandle. Usually you want a freshly declared lexical for this (C<my $fh>)
+
+=item * I<how> is the description of how the file will be opened. This is where most of the complexity of open lies. It contains two pieces of information, the mode and the layers.
+
+=over 4
+
+=item * The mode specifies how it's opened. The most important modes are C<< < >>(read-only) and C<< > >>(write-only), but there are many others with varying 
+
+=item * The layers determine how the data is transformed (or not) after being read. The most important ones are C<:raw> (for binary files), C<:utf8> (for utf8 encoded files) and C<:encoding> (for other text encodings).
+
+=back
+
+These two are concatenated into the I<how> argument.
+
+=item * I<what> is (usually) the file that's being opened. Little surprises here.
+
+=item * The return value is a true value on success, and false on failure. It is essential to check for failure, but fortunately there is the C<autodie> pragma that does this for you, and automatically throws an exception in case of failure.
+
+=back
+
+=head1 WHO
+
+The first argument is the variable that binds the filehandle. There are two forms of this, direct and indirect.
+
+=over 4
+
+=item * Direct
+
+Direct handles are the traditional way of doing filehandles. They are typically presented as barewords that resolve to globs, like this:
+
+ open FH, '<', $filename;
+
+They have some complications that have led to them going out of favor. Most importantly, the handles are package globals, which means one must be careful with reusing them or recursion. Another effect of this different scoping is that they can easily leak if not explicitly closed.
+
+=item * Indirect
+
+Indirect filehandles are a reference to a glob. If given an undefined variable as its first argument, C<open> will autovifify a globref into that variable, making using these as easy as direct handles. Because it's an actual scalar, all the usual scoping and reference counting rules apply, making them less surprising. This also means they will be automatically closed when no reference is helt to them anymore, though that will swallow any error condition so it's still preferable to close it explicitly.
+
+=back
+
+=head1 HOW AND WHAT
+
+The next arguments are I<how> and I<what>. The mode in I<how> tightly controls the meaning of the I<what> argument.
+
+=head2 Modes
+
+=head3 Ordinary files
+
+=over 4
+
+=item * <
+
+=item * >
+
+=item * >>
+
+=item * +<
+
+=item * +>
+
+=back
+
+=head3 Pipe opens
+
+=over 4
+
+=item * -|
+
+=item * |-
+
+=back
+
+=head3 Re-opens
+
+=over 4
+
+=item * &
+
+=item * &=
+
+=back
+
+=head2 Layers
+
+=over 4
+
+=item :utf8
+
+=item :encoding
+
+=item :raw
+
+=back
+
+=head1 WHETHER
+
+=head1 2-ARG OPEN
+
+=head2 ARGV
+
+=head1 SYSOPEN
+
+
